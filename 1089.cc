@@ -26,6 +26,18 @@ void init() {
 	}
 }
 
+/*
+explation
+dp[i][j] = min(dp[i][j], dp[i][k] + dp[k][j])
+
+->
+
+dp[k][i][j] 经过了1-k  i->j 的最短路
+
+dp[k][i][j] = min(dp[k - 1][i][j],
+			dp[k - 1][i][k] + dp[k - 1][k][j])	
+*/
+
 void floyd(){
 	for (int k = 1; k <= N; k++) {
 		for (int i = 1; i <= N; i++) {
