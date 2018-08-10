@@ -1,5 +1,5 @@
-.idea
-.vscode 
-cmake-build-debug
-cmake-build-debug-gcc
-cmake-build-release
+.idea/
+.vscode/ 
+cmake-build-debug/
+cmake-build-debug-gcc/
+cmake-build-release/
