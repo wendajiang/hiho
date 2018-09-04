@@ -27,7 +27,11 @@ set(SOURCE_FILES
 #        49-1.cpp
 #        192.cpp
 #        searchpro/1312.cpp
-        1109.cc
+#        1109.cc
+#        218keywordsfilter.cpp
+#        218key2.cpp
+#        1036.cpp
+        1107.cpp
         )
 add_executable(hiho ${SOURCE_FILES})
 

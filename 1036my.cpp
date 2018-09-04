@@ -29,6 +29,8 @@ public:
         }
         cur->isWord = true;
     }
+
+    //失配才会出现找fail
     void build(){
         queue<node*> Q;
         node *cur = root;

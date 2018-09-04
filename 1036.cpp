@@ -1,105 +1,158 @@
-#include "include.h"
-// #include <bits/stdc++.h>
+#include <bits/stdc++.h>
 using namespace std;
+typedef long long LL;
+#define Hash(x) (x - 'a')
 
-class node{  
-public:  
-    node(){  
-        bad=false;  
-        prev=NULL;  
-        for(int i=0;i<26;i++)  
-            next[i]=NULL;  
-    }  
-    bool bad;//是否是终点  
-    node *next[26];  
-    node *prev;//前缀节点  
-};  
-  
-class trie{  
-public:  
-    trie(){  
-        root=new node();  
-    }  
-    void in(string &str){  
-        node *proot=root;  
-        int l=str.size();  
-        for(int i=0;i<l;i++){  
-            if(!proot->next[str.at(i)-'a'])  
-                proot->next[str.at(i)-'a']=new node();  
-            proot=proot->next[str.at(i)-'a'];  
-        }  
-        proot->bad=true;//单词结尾节点  
-    }  
-    void bulid (){  
-        queue<node*>Q;  
-        node *proot=root;  
-        for(int i=0;i<26;i++){  
-            if(proot->next[i]){  
-                proot->next[i]->prev=root;  
-                Q.push(proot->next[i]);  
-            }  
-        }  
-        while(!Q.empty()){  
-            proot=Q.front();  
-            Q.pop();  
-            for(int i=0;i<26;i++){  
-                node *p=proot->next[i];  
-                if(p&&!p->bad){  
-                    node* prev=proot->prev;  
-                    while(prev){  
-                        if(prev->next[i]){  
-                            p->prev=prev->next[i];  
-                            if(p->prev->bad)  
-                                p->bad=true;  
-                            break;  
-                        }else  
-                            prev=prev->prev;  
-                    }  
-                    if(p->prev==NULL)  
-                        p->prev=root;  
-                    Q.push(p);  
-                }  
-            }  
-        }  
-    }  
-    bool sea(string &str){  
-        int l=str.size();  
-        node *proot=root;  
-        for(int i=0;i<l;i++){  
-            while(true){  
-                if(proot->next[str.at(i)-'a']){  
-                    proot=proot->next[str.at(i)-'a'];  
-                    if(proot->bad)  
-                        return true;  
-                    break;  
-                }else  
-                    proot=proot->prev;  
-                if(proot==root||!proot){  
-                    proot=root;  
-                    break;  
-                }  
-            }  
-        }  
-        return false;  
-    }  
-private:  
-    node *root;  
-};  
-  
-int main(){  
-    ios::sync_with_stdio(false) ;  
-    int n;  
-    trie T;  
-    string word;  
-    string pas;  
-    for(cin>>n;n--;){  
-        cin>>word;  
-        T.in(word);  
-    }  
-    T.bulid();  
-    cin>>pas;  
-    bool sig=T.sea(pas);  
-    if(sig)printf("YES\n");  
-    else printf("NO\n");  
-    return 0;  
-}  
+const int N = 1e6 + 1, CH = 26;
+struct Trie{
+    Trie *next[CH];
+    Trie *fail;
+    int len;
+    Trie(): len(0), fail(NULL) {
+        for (int i = 0; i < CH; i++) {
+            next[i] = NULL;
+        }
+    }
+};
+
+vector<pair<int, int>> LR;
+
+char str[N];
+
+class ACauto{
+
+public:
+    void init(){
+        root = new Trie();
+    }
+
+    void insert(char *s){
+        Trie *p = root;
+        int i;
+        for(i = 0; s[i]; i++){
+            int c = Hash(s[i]);
+            if(p -> next[c] == NULL){
+                p->next[c] = new Trie();
+            }
+            p = p -> next[c];
+        }
+        p -> len = i;
+
+    }
+
+    void build(){
+        queue<Trie *> q;
+        q.push(root);
+        root -> fail = NULL;
+        while(!q.empty()){
+            Trie *now = q.front();
+            q.pop();
+            for(int i = 0; i < CH; i++){
+                Trie *son = now -> next[i];
+                Trie *tp = (now == root)? root: now -> fail->next[i];
+                if(son == NULL){
+                    now -> next[i] = tp;
+                }else{
+                    son -> fail = tp;
+                    q.push(son);
+                }
+            }
+        }
+    }
+
+    //两种不同的build，query相同可以
+    void build2() {
+        queue<Trie* > q;
+        q.push(root);
+        root->fail = NULL;
+        while(!q.empty()) {
+            Trie* now = q.front();
+            q.pop();
+            for (int i = 0; i < CH; i++) {
+                if (now->next[i] != NULL) {
+                    if (now == root) now->next[i]->fail = root;
+                    else {
+                        Trie* p = now->fail;
+                        while(p != NULL) {
+                            if (p->next[i] != NULL) {
+                                now->next[i]->fail = p->next[i];
+                                break;
+                            }
+                            p = p->fail;
+                        }
+                        if (p == NULL) now->next[i]->fail = root;
+                    }
+                    q.push(now->next[i]);
+                }
+            }
+        }
+    }
+
+
+    bool query(char* s) {
+        Trie *now = root;
+        for (int i = 0; s[i]; i++) {
+            int c = Hash(s[i]);
+            if (now->next[c] != NULL) {
+                now = now->next[c];
+                if (now->len) {
+                    return true;
+                }
+            } else {
+                Trie* p = now->fail;
+                while (p && p->next[c] == NULL) p = p->fail;
+                if (p == NULL) now = root;
+                else now = p->next[c];
+            }
+        }
+        return false;
+    }
+
+    void query2(char *s) {
+        Trie *now = root;
+        for (int i = 0; s[i]; i++) {
+            int c = Hash(s[i]);
+            if (now->next[c] != NULL) {
+                now = now->next[c];
+                if (now->len) {
+                    pair<int, int> tmp;
+                    tmp.first = i - now->len + 1;
+                    tmp.second = i;
+                    LR.push_back(tmp);
+                }
+            } else {
+                Trie* p = now->fail;
+                while (p && p->next[c] == NULL) p = p->fail;
+                if (p == NULL) now = root;
+                else now = p->next[c];
+            }
+        }
+    }
+
+private:
+    Trie* root;
+}ac;
+
+int main() {
+    int n;
+    scanf("%d", &n);
+    ac.init();
+    for (int i = 0; i < n; i++) {
+
+        scanf("%s", str);
+        ac.insert(str);
+    }
+    ac.build();
+    scanf("%s", str);
+
+    ac.query2(str);
+    for (int i = 0; i < LR.size(); i++) {
+        cout << LR[i].first << " " << LR[i].second << endl;
+    }
+    if (ac.query(str)) {
+        printf("YES\n");
+    } else {
+        printf("NO\n");
+    }
+    return 0;
+}
