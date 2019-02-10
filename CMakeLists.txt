@@ -31,7 +31,13 @@ set(SOURCE_FILES
 #        218keywordsfilter.cpp
 #        218key2.cpp
 #        1036.cpp
-        1107.cpp
+#        1107.cpp
+#        1077.cpp
+#        1077my.cpp
+#        1078.cpp
+#        1443.cpp
+        1049.cpp
+
         )
 add_executable(hiho ${SOURCE_FILES})
 
