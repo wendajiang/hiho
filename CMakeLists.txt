@@ -36,8 +36,8 @@ set(SOURCE_FILES
 #        1077my.cpp
 #        1078.cpp
 #        1443.cpp
-        1049.cpp
-
+#        1049.cpp
+         zhou267偶像的条件.cpp
         )
 add_executable(hiho ${SOURCE_FILES})
 
